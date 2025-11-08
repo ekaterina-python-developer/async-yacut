@@ -27,7 +27,8 @@ async def upload_file_to_disk(
         if resp.status != 200:
             raise Exception(
                 f'Ошибка получения URL для загрузки: {
-                    resp.status}')
+                    resp.status}'
+            )
         upload_data = await resp.json()
         upload_href = upload_data.get('href')
         if not upload_href:
@@ -46,7 +47,8 @@ async def upload_file_to_disk(
         if publish_resp.status != 200:
             print(
                 f'Предупреждение: не удалось опубликовать файл: {
-                    publish_resp.status}')
+                    publish_resp.status}'
+            )
 
     async with session.get(
         DOWNLOAD_LINK_URL,
