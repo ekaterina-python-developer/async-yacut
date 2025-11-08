@@ -5,13 +5,18 @@ from settings import Config
 API_HOST = 'https://cloud-api.yandex.net/'
 API_VERSION = 'v1'
 
-REQUEST_UPLOAD_URL = f'{API_HOST}{API_VERSION}/disk/resources/upload'
-DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources/download'
+REQUEST_UPLOAD_URL = (
+    f'{API_HOST}{API_VERSION}/disk/resources/upload'
+)
+DOWNLOAD_LINK_URL = (
+    f'{API_HOST}{API_VERSION}/disk/resources/download'
+)
 
 AUTH_HEADERS = {'Authorization': f'OAuth {Config.DISK_TOKEN}'}
 
 
-async def upload_file_to_disk(session, file_storage, folder='app:/yacut_uploads'):
+async def upload_file_to_disk(
+        session, file_storage, folder='app:/yacut_uploads'):
     """Загружает один файл на Яндекс.Диск и возвращает ссылки."""
     filename = file_storage.filename
     disk_path = f'{folder}/{filename}'
@@ -42,7 +47,10 @@ async def upload_file_to_disk(session, file_storage, folder='app:/yacut_uploads'
         params={'path': disk_path}
     ) as publish_resp:
         if publish_resp.status != 200:
-            warning_msg = f'Предупреждение: не удалось опубликовать файл: {publish_resp.status}'
+            warning_msg = (
+                f'Предупреждение: не удалось опубликовать файл: '
+                f'{publish_resp.status}'
+            )
             print(warning_msg)
 
     async with session.get(
@@ -56,7 +64,9 @@ async def upload_file_to_disk(session, file_storage, folder='app:/yacut_uploads'
         download_data = await download_resp.json()
         direct_url = download_data.get('href')
         if not direct_url:
-            raise Exception(f'Не удалось получить прямую ссылку: {download_data}')
+            raise Exception(
+                f'Не удалось получить прямую ссылку: {download_data}'
+            )
 
     return {
         'file_name': filename,
