@@ -2,7 +2,6 @@ import os
 import string
 from re import escape
 
-
 USER_LINK_LIMIT = 16
 VALID_SYMBOLS = string.ascii_letters + string.digits
 SHORT_PATTERN = f'^[{escape(VALID_SYMBOLS)}]*$'
@@ -20,10 +19,7 @@ SHORT_LENGTH = 6
 MAX_ATTEMPTS = 50
 
 
-
-
 class Config(object):
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
     SECRET_KEY = os.getenv('SECRET_KEY')
     DISK_TOKEN = os.getenv('DISK_TOKEN')
-    
