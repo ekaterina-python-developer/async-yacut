@@ -11,10 +11,7 @@ DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources/download'
 AUTH_HEADERS = {'Authorization': f'OAuth {Config.DISK_TOKEN}'}
 
 
-async def upload_file_to_disk(
-        session,
-        file_storage,
-        folder='app:/yacut_uploads'):
+async def upload_file_to_disk(session, file_storage, folder='app:/yacut_uploads'):
     """Загружает один файл на Яндекс.Диск и возвращает ссылки."""
     filename = file_storage.filename
     disk_path = f'{folder}/{filename}'
@@ -25,19 +22,19 @@ async def upload_file_to_disk(
         params={'path': disk_path, 'overwrite': 'True'}
     ) as resp:
         if resp.status != 200:
-            raise Exception(
-                f'Ошибка получения URL для загрузки: {
-                    resp.status}'
-            )
+            error_msg = f'Ошибка получения URL для загрузки: {resp.status}'
+            raise Exception(error_msg)
         upload_data = await resp.json()
         upload_href = upload_data.get('href')
         if not upload_href:
             raise Exception(f'Не удалось получить upload_href: {upload_data}')
+
     file_data = file_storage.read()
 
     async with session.put(upload_href, data=file_data) as upload_resp:
         if upload_resp.status not in [200, 201, 202]:
-            raise Exception(f'Ошибка загрузки файла: {upload_resp.status}')
+            error_msg = f'Ошибка загрузки файла: {upload_resp.status}'
+            raise Exception(error_msg)
 
     async with session.put(
         f'{API_HOST}{API_VERSION}/disk/resources/publish',
@@ -45,10 +42,8 @@ async def upload_file_to_disk(
         params={'path': disk_path}
     ) as publish_resp:
         if publish_resp.status != 200:
-            print(
-                f'Предупреждение: не удалось опубликовать файл: {
-                    publish_resp.status}'
-            )
+            warning_msg = f'Предупреждение: не удалось опубликовать файл: {publish_resp.status}'
+            print(warning_msg)
 
     async with session.get(
         DOWNLOAD_LINK_URL,
@@ -56,13 +51,12 @@ async def upload_file_to_disk(
         params={'path': disk_path}
     ) as download_resp:
         if download_resp.status != 200:
-            raise Exception(f'Ошибка получения ссылки: {download_resp.status}')
+            error_msg = f'Ошибка получения ссылки: {download_resp.status}'
+            raise Exception(error_msg)
         download_data = await download_resp.json()
         direct_url = download_data.get('href')
-
         if not direct_url:
-            raise Exception(
-                f'Не удалось получить прямую ссылку: {download_data}')
+            raise Exception(f'Не удалось получить прямую ссылку: {download_data}')
 
     return {
         'file_name': filename,
