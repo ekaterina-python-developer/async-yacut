@@ -6,6 +6,8 @@ from . import app
 
 
 class InvalidAPIUsage(Exception):
+    """Кастомное исключение для API ошибок."""
+
     status_code = HTTPStatus.BAD_REQUEST
 
     def __init__(self, message, status_code=HTTPStatus.BAD_REQUEST):
@@ -14,11 +16,13 @@ class InvalidAPIUsage(Exception):
         self.status_code = status_code
 
     def to_dict(self):
+        """Возвращает ошибку в виде словаря."""
         return {'message': self.message}
 
 
 @app.errorhandler(HTTPStatus.NOT_FOUND)
 def page_not_found(error):
+    """Обрабатывает ошибку 404."""
     return render_template('404.html'), HTTPStatus.NOT_FOUND
 
 

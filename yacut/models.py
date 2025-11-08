@@ -12,6 +12,8 @@ from settings import (BAD_SHORT, GENERATION_FAIL,
 
 
 class URLMap(db.Model):
+    """Модель для хранения сопоставлений оригинальных и коротких ссылок."""
+
     id = db.Column(db.Integer, primary_key=True)
     original = db.Column(db.String(MAX_ORIGINAL_LENGTH), nullable=False)
     short = db.Column(db.String(SHORT_LENGTH), nullable=False, unique=True)
@@ -21,6 +23,7 @@ class URLMap(db.Model):
 
     @staticmethod
     def get_unique_short():
+        """Генерирует уникальный короткий идентификатор."""
         for _ in range(MAX_ATTEMPTS):
             short = ''.join(choices(VALID_SYMBOLS, k=SHORT_LENGTH))
             if not URLMap.get(short):
@@ -29,11 +32,13 @@ class URLMap(db.Model):
 
     @staticmethod
     def get(short):
+        """Возвращает объект URLMap по короткому идентификатору."""
         return URLMap.query.filter_by(short=short).first()
     
     @staticmethod
     def create(original, short=None):
-        reserved_routes = ['files']  
+        """Создает новое сопоставление ссылок."""
+        reserved_routes = ('files',)
         
         if short:
             if short in reserved_routes:
@@ -52,9 +57,11 @@ class URLMap(db.Model):
         return url_map
 
     def short_link(self):
+        """Возвращает полную короткую ссылку."""
         return url_for('redirect_short_link', short=self.short, _external=True)
     
     def is_valid_short(self, short_id):
+        """Проверяет валидность короткого идентификатора."""
         if len(short_id) > USER_LINK_LIMIT:
             raise ValueError(BAD_SHORT)
         for value in short_id:
@@ -63,6 +70,7 @@ class URLMap(db.Model):
         return True
     
     def to_dict(self, original_only=False):
+        """Возвращает данные в виде словаря."""
         if original_only:
             return dict(url=self.original)
         base_data = dict(

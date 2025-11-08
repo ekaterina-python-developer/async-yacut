@@ -9,6 +9,7 @@ import asyncio
 
 @app.route('/', methods=('GET', 'POST'))
 def index_view():
+    """Главная страница для создания коротких ссылок."""
     form = LinkForm()
     if not form.validate_on_submit():
         return render_template('index.html', form=form)
@@ -28,11 +29,13 @@ def index_view():
 
 @app.route('/<string:short>', methods=('GET',))
 def redirect_short_link(short):
+    """Перенаправляет с короткой ссылки на оригинальную."""
     url_map = URLMap.query.filter_by(short=short).first_or_404()
     return redirect(url_map.original)
 
-@app.route('/files', methods=['GET', 'POST'])
+@app.route('/files', methods=('GET', 'POST'))
 def files():
+    """Страница загрузки файлов на Яндекс.Диск."""
     form = FileUploadForm()
     links = []
 

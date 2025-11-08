@@ -11,6 +11,7 @@ DOWNLOAD_LINK_URL = f'{API_HOST}{API_VERSION}/disk/resources/download'
 AUTH_HEADERS = {'Authorization': f'OAuth {Config.DISK_TOKEN}'}
 
 async def upload_file_to_disk(session, file_storage, folder='app:/yacut_uploads'):
+    """Загружает один файл на Яндекс.Диск и возвращает ссылки."""
     filename = file_storage.filename
     disk_path = f'{folder}/{filename}'
 

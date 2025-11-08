@@ -9,13 +9,15 @@ from settings import (MAX_ORIGINAL_LENGTH, MIN_ORIGINAL_LENGTH,
 
 
 class LinkForm(FlaskForm):
+    """Форма для создания коротких ссылок."""
+
     original_link = URLField(
-        'Добавьте укорачиваемую ссылку',
-        validators=[
+        'Длинная ссылка',
+        validators=(
             DataRequired(message='Обязательное поле'),
             URL(message='Некорректный URL'),
             Length(MIN_ORIGINAL_LENGTH, MAX_ORIGINAL_LENGTH)
-        ]
+        )
     )
     custom_id = URLField(
         'Добавьте свой вариант короткой ссылки',
@@ -31,13 +33,15 @@ class LinkForm(FlaskForm):
     submit = SubmitField('Создать ссылку')
 
 class FileUploadForm(FlaskForm):
+    """Форма для загрузки файлов на Яндекс.Диск."""
+    
     files = FileField(
         'Выберите файлы для загрузки',
-        validators=[
+        validators=(
             FileRequired(message='Выберите хотя бы один файл'),
-            FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt'], 
+            FileAllowed(('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt'), 
                        message='Недопустимый тип файла')
-        ],
+        ),
         render_kw={"multiple": True}
     )
     submit = SubmitField('Загрузить файлы')

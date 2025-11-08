@@ -9,7 +9,7 @@ from settings import EMPTY_BODY, NO_URL_ERROR, SHORT_NOT_FOUND
 
 @app.route('/api/id/', methods=('POST',))
 def new_short():
-    """Создание новой короткой ссылки"""
+    """Создание новой короткой ссылки."""
     data = request.get_json(silent=True)
     if data is None:
         raise InvalidAPIUsage(EMPTY_BODY)
@@ -28,6 +28,7 @@ def new_short():
 
 @app.route('/api/id/<string:short>/', methods=('GET',))
 def api_redirect_short_link(short):
+    """Возвращает информацию о короткой ссылке по её идентификатору."""
     url_map = URLMap.get(short)
     if url_map is None:
         raise InvalidAPIUsage(SHORT_NOT_FOUND, HTTPStatus.NOT_FOUND)
