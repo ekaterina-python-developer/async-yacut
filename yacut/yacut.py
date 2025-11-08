@@ -41,12 +41,13 @@ def files():
         try:
             upload_results = asyncio.run(upload_multiple_files(files))
             for item in upload_results:
-                url_map = URLMap.create(
-                    original=item['download_url'],
-                    short=None  
+                url_map = URLMap(
+                    original=item['view_url'],
+                    short=URLMap.get_unique_short()
                 )
                 url_map.is_file = True
                 url_map.file_name = item['file_name']
+                db.session.add(url_map)
                 db.session.commit()
                 links.append(url_map)
             flash('Файлы успешно загружены!', 'success')

@@ -10,8 +10,6 @@
   <p class="text-center my-4">
     Загрузите файлы и получите на них короткие ссылки
   </p>
-
-  <!-- Форма загрузки -->
   <div class="container text-center">
     <form method="POST" enctype="multipart/form-data" novalidate>
       {{ form.csrf_token }}
@@ -26,8 +24,6 @@
       {{ form.submit(class="btn btn-primary px-4 py-2") }}
     </form>
   </div>
-
-  <!-- Сообщения о результате -->
   <div class="container mt-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -39,28 +35,19 @@
       {% endif %}
     {% endwith %}
   </div>
-
-  <!-- Таблица ссылок -->
   {% if links %}
   <div class="container mt-4">
-    <table class="table table-hover text-center align-middle">
-      <thead class="table-light">
-        <tr>
-          <th scope="col">Имя файла</th>
-          <th scope="col">Короткая ссылка</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for link in links %}
-          <tr>
-            <td>{{ link.file_name }}</td>
-            <td>
-              <a href="{{ link.short_link() }}" target="_blank">{{ link.short_link() }}</a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <h3 class="text-center">Загруженные файлы:</h3>
+      {% for link in links %}
+      <div class="alert alert-success">
+          <p><strong>Файл:</strong> {{ link.file_name }}</p>
+          <p><strong>Ссылка:</strong> 
+              <a href="{{ link.short_link() }}" target="_blank">
+                  {{ link.short_link() }}
+              </a>
+          </p>
+      </div>
+      {% endfor %}
   </div>
   {% endif %}
 </section>

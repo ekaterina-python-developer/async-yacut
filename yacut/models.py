@@ -30,15 +30,20 @@ class URLMap(db.Model):
     @staticmethod
     def get(short):
         return URLMap.query.filter_by(short=short).first()
-
+    
     @staticmethod
     def create(original, short=None):
+        reserved_routes = ['files']  
+        
         if short:
+            if short in reserved_routes:
+                raise ValueError(SHORT_EXIST)  
+            
+            if URLMap.get(short):
+                raise ValueError(SHORT_EXIST)
             if ((len(short) > USER_LINK_LIMIT) or
                     any(char not in VALID_SYMBOLS for char in short)):
                 raise ValueError(BAD_SHORT)
-            if URLMap.get(short):
-                raise ValueError(SHORT_EXIST)
         else:
             short = URLMap.get_unique_short()
         url_map = URLMap(original=original, short=short)
@@ -48,7 +53,7 @@ class URLMap(db.Model):
 
     def short_link(self):
         return url_for('redirect_short_link', short=self.short, _external=True)
-
+    
     def is_valid_short(self, short_id):
         if len(short_id) > USER_LINK_LIMIT:
             raise ValueError(BAD_SHORT)
@@ -60,9 +65,14 @@ class URLMap(db.Model):
     def to_dict(self, original_only=False):
         if original_only:
             return dict(url=self.original)
-        return dict(
+        base_data = dict(
             url=self.original, 
-            short_link=self.short_link(),
-            is_file=self.is_file,
-            file_name=self.file_name
+            short_link=self.short_link()
         )
+        if self.is_file:
+            base_data.update({
+                'is_file': True,
+                'file_name': self.file_name
+            })
+            
+        return base_data
