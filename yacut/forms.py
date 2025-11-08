@@ -32,16 +32,25 @@ class LinkForm(FlaskForm):
     )
     submit = SubmitField('Создать ссылку')
 
+
 class FileUploadForm(FlaskForm):
     """Форма для загрузки файлов на Яндекс.Диск."""
-    
+
     files = FileField(
         'Выберите файлы для загрузки',
         validators=(
-            FileRequired(message='Выберите хотя бы один файл'),
-            FileAllowed(('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'txt'), 
-                       message='Недопустимый тип файла')
-        ),
-        render_kw={"multiple": True}
-    )
+            FileRequired(
+                message='Выберите хотя бы один файл'),
+            FileAllowed(
+                ('jpg',
+                 'jpeg',
+                 'png',
+                 'gif',
+                 'pdf',
+                 'doc',
+                 'docx',
+                 'txt'),
+                message='Недопустимый тип файла')),
+        render_kw={
+            "multiple": True})
     submit = SubmitField('Загрузить файлы')

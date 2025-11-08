@@ -7,6 +7,7 @@ from .models import URLMap
 from .yandex_disk import upload_multiple_files
 import asyncio
 
+
 @app.route('/', methods=('GET', 'POST'))
 def index_view():
     """Главная страница для создания коротких ссылок."""
@@ -32,6 +33,7 @@ def redirect_short_link(short):
     """Перенаправляет с короткой ссылки на оригинальную."""
     url_map = URLMap.query.filter_by(short=short).first_or_404()
     return redirect(url_map.original)
+
 
 @app.route('/files', methods=('GET', 'POST'))
 def files():

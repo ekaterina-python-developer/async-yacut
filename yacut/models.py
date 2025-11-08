@@ -18,8 +18,8 @@ class URLMap(db.Model):
     original = db.Column(db.String(MAX_ORIGINAL_LENGTH), nullable=False)
     short = db.Column(db.String(SHORT_LENGTH), nullable=False, unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    is_file = db.Column(db.Boolean, default=False)  
-    file_name = db.Column(db.String(255))  
+    is_file = db.Column(db.Boolean, default=False)
+    file_name = db.Column(db.String(255))
 
     @staticmethod
     def get_unique_short():
@@ -34,16 +34,16 @@ class URLMap(db.Model):
     def get(short):
         """Возвращает объект URLMap по короткому идентификатору."""
         return URLMap.query.filter_by(short=short).first()
-    
+
     @staticmethod
     def create(original, short=None):
         """Создает новое сопоставление ссылок."""
         reserved_routes = ('files',)
-        
+
         if short:
             if short in reserved_routes:
-                raise ValueError(SHORT_EXIST)  
-            
+                raise ValueError(SHORT_EXIST)
+
             if URLMap.get(short):
                 raise ValueError(SHORT_EXIST)
             if ((len(short) > USER_LINK_LIMIT) or
@@ -59,7 +59,7 @@ class URLMap(db.Model):
     def short_link(self):
         """Возвращает полную короткую ссылку."""
         return url_for('redirect_short_link', short=self.short, _external=True)
-    
+
     def is_valid_short(self, short_id):
         """Проверяет валидность короткого идентификатора."""
         if len(short_id) > USER_LINK_LIMIT:
@@ -68,13 +68,13 @@ class URLMap(db.Model):
             if value not in VALID_SYMBOLS:
                 raise ValueError(BAD_SHORT)
         return True
-    
+
     def to_dict(self, original_only=False):
         """Возвращает данные в виде словаря."""
         if original_only:
             return dict(url=self.original)
         base_data = dict(
-            url=self.original, 
+            url=self.original,
             short_link=self.short_link()
         )
         if self.is_file:
@@ -82,5 +82,5 @@ class URLMap(db.Model):
                 'is_file': True,
                 'file_name': self.file_name
             })
-            
+
         return base_data
