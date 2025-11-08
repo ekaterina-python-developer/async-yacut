@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Загрузка файлов — YaCut
+{% endblock title %}
+
+{% block content %}
+<section class="container my-5 px-4">
+  <h1 class="text-center"><span style="color: red;">Ya</span>Cut</h1>
+  <p class="text-center my-4">
+    Загрузите файлы и получите на них короткие ссылки
+  </p>
+
+  <!-- Форма загрузки -->
+  <div class="container text-center">
+    <form method="POST" enctype="multipart/form-data" novalidate>
+      {{ form.csrf_token }}
+      <div class="mb-3">
+        {{ form.files(class="form-control form-control-lg", id="filesInput") }}
+        <p class="text-danger">
+          {% for error in form.files.errors %}
+            {{ error }}
+          {% endfor %}
+        </p>
+      </div>
+      {{ form.submit(class="btn btn-primary px-4 py-2") }}
+    </form>
+  </div>
+
+  <!-- Сообщения о результате -->
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} text-center" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Таблица ссылок -->
+  {% if links %}
+  <div class="container mt-4">
+    <table class="table table-hover text-center align-middle">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Имя файла</th>
+          <th scope="col">Короткая ссылка</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for link in links %}
+          <tr>
+            <td>{{ link.file_name }}</td>
+            <td>
+              <a href="{{ link.short_link() }}" target="_blank">{{ link.short_link() }}</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endblock content %}
