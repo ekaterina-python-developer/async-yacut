@@ -4,7 +4,8 @@ from re import escape
 
 USER_LINK_LIMIT = 16
 VALID_SYMBOLS = string.ascii_letters + string.digits
-SHORT_PATTERN = f'^[{escape(VALID_SYMBOLS)}]*$'
+escaped_symbols = escape(VALID_SYMBOLS)
+SHORT_PATTERN = f'^[{escaped_symbols}]*$'
 EMPTY_BODY = 'Отсутствует тело запроса'
 INVALID_SYMBOLS = (f'Введены недопустимые символы.'
                    f'Разрешенные символы: {VALID_SYMBOLS}')

@@ -35,28 +35,37 @@ def redirect_short_link(short):
     return redirect(url_map.original)
 
 
-@app.route('/files', methods=('GET', 'POST'))
-def files():
-    """Страница загрузки файлов на Яндекс.Диск."""
-    form = FileUploadForm()
+@app.route('/files', methods=('GET', 'POST')) 
+def files(): 
+    """Страница загрузки файлов на Яндекс.Диск.""" 
+    form = FileUploadForm() 
     links = []
-
-    if form.validate_on_submit():
-        files = request.files.getlist('files')
+    if request.method == 'GET' or not form.validate_on_submit():
+        return render_template('files.html', form=form, links=links)
+    files_list = request.files.getlist('files')
+    try: 
+        upload_results = asyncio.run(upload_multiple_files(files_list))
+    except Exception as error:
+        flash(f'Ошибка загрузки: {error}', 'danger')
+        return render_template('files.html', form=form, links=links)
+    for upload_result in upload_results:
+        view_url = upload_result.get('view_url')
+        file_name = upload_result.get('file_name')
+        if not view_url or not file_name:
+            continue
+        url_map = URLMap(
+            original=view_url,
+            short=URLMap.get_unique_short()
+        )
+        url_map.is_file = True 
+        url_map.file_name = file_name
         try:
-            upload_results = asyncio.run(upload_multiple_files(files))
-            for item in upload_results:
-                url_map = URLMap(
-                    original=item['view_url'],
-                    short=URLMap.get_unique_short()
-                )
-                url_map.is_file = True
-                url_map.file_name = item['file_name']
-                db.session.add(url_map)
-                db.session.commit()
-                links.append(url_map)
-            flash('Файлы успешно загружены!', 'success')
-        except Exception as e:
-            flash(f'Ошибка загрузки: {e}', 'danger')
-
+            db.session.add(url_map)
+            db.session.commit()
+            links.append(url_map)
+        except Exception as error:
+            db.session.rollback()
+            flash(f'Ошибка сохранения файла {file_name}: {error}', 'danger')
+    if links:
+        flash('Файлы успешно загружены!', 'success')
     return render_template('files.html', form=form, links=links)

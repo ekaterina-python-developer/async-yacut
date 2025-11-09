@@ -1,6 +1,8 @@
 import aiohttp
 import asyncio
 from settings import Config
+from http import HTTPStatus
+from yacut.error_handlers import UploadURLGetError, UploadHrefError
 
 API_HOST = 'https://cloud-api.yandex.net/'
 API_VERSION = 'v1'
@@ -14,30 +16,30 @@ DOWNLOAD_LINK_URL = (
 
 AUTH_HEADERS = {'Authorization': f'OAuth {Config.DISK_TOKEN}'}
 
-
-async def upload_file_to_disk(
-        session, file_storage, folder='app:/yacut_uploads'):
-    """Загружает один файл на Яндекс.Диск и возвращает ссылки."""
-    filename = file_storage.filename
-    disk_path = f'{folder}/{filename}'
-
-    async with session.get(
-        REQUEST_UPLOAD_URL,
-        headers=AUTH_HEADERS,
-        params={'path': disk_path, 'overwrite': 'True'}
-    ) as resp:
-        if resp.status != 200:
-            error_msg = f'Ошибка получения URL для загрузки: {resp.status}'
-            raise Exception(error_msg)
-        upload_data = await resp.json()
-        upload_href = upload_data.get('href')
-        if not upload_href:
-            raise Exception(f'Не удалось получить upload_href: {upload_data}')
-
+async def upload_file_to_disk( 
+        session, file_storage, folder='app:/yacut_uploads'): 
+    """Загружает один файл на Яндекс.Диск и возвращает ссылки.""" 
+    filename = file_storage.filename 
+    disk_path = f'{folder}/{filename}' 
+ 
+    async with session.get( 
+        REQUEST_UPLOAD_URL, 
+        headers=AUTH_HEADERS, 
+        params={'path': disk_path, 'overwrite': 'True'} 
+    ) as resp: 
+        if resp.status != HTTPStatus.OK:  
+            error_msg = f'Ошибка получения URL для загрузки: {resp.status}' 
+            raise UploadURLGetError(error_msg)  
+        
+        upload_data = await resp.json() 
+        upload_href = upload_data.get('href') 
+        if not upload_href: 
+            raise UploadHrefError(f'Не удалось получить upload_href: {upload_data}') 
+ 
     file_data = file_storage.read()
 
     async with session.put(upload_href, data=file_data) as upload_resp:
-        if upload_resp.status not in [200, 201, 202]:
+        if upload_resp.status not in [HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED]:
             error_msg = f'Ошибка загрузки файла: {upload_resp.status}'
             raise Exception(error_msg)
 
@@ -46,19 +48,18 @@ async def upload_file_to_disk(
         headers=AUTH_HEADERS,
         params={'path': disk_path}
     ) as publish_resp:
-        if publish_resp.status != 200:
+        if publish_resp.status != HTTPStatus.OK:
             warning_msg = (
                 f'Предупреждение: не удалось опубликовать файл: '
                 f'{publish_resp.status}'
-            )
-            print(warning_msg)
+            )            
 
     async with session.get(
         DOWNLOAD_LINK_URL,
         headers=AUTH_HEADERS,
         params={'path': disk_path}
     ) as download_resp:
-        if download_resp.status != 200:
+        if download_resp.status != HTTPStatus.OK:
             error_msg = f'Ошибка получения ссылки: {download_resp.status}'
             raise Exception(error_msg)
         download_data = await download_resp.json()

@@ -52,5 +52,5 @@ class FileUploadForm(FlaskForm):
                  'txt'),
                 message='Недопустимый тип файла')),
         render_kw={
-            "multiple": True})
+            'multiple': True})
     submit = SubmitField('Загрузить файлы')
