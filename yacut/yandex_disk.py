@@ -16,43 +16,36 @@ DOWNLOAD_LINK_URL = (
 
 AUTH_HEADERS = {'Authorization': f'OAuth {Config.DISK_TOKEN}'}
 
-async def upload_file_to_disk( 
-        session, file_storage, folder='app:/yacut_uploads'): 
-    """Загружает один файл на Яндекс.Диск и возвращает ссылки.""" 
-    filename = file_storage.filename 
-    disk_path = f'{folder}/{filename}' 
- 
-    async with session.get( 
-        REQUEST_UPLOAD_URL, 
-        headers=AUTH_HEADERS, 
-        params={'path': disk_path, 'overwrite': 'True'} 
-    ) as resp: 
-        if resp.status != HTTPStatus.OK:  
-            error_msg = f'Ошибка получения URL для загрузки: {resp.status}' 
-            raise UploadURLGetError(error_msg)  
-        
-        upload_data = await resp.json() 
-        upload_href = upload_data.get('href') 
-        if not upload_href: 
-            raise UploadHrefError(f'Не удалось получить upload_href: {upload_data}') 
- 
+
+async def upload_file_to_disk(
+        session, file_storage, folder='app:/yacut_uploads'):
+    """Загружает один файл на Яндекс.Диск и возвращает ссылки."""
+    filename = file_storage.filename
+    disk_path = f'{folder}/{filename}'
+
+    async with session.get(
+        REQUEST_UPLOAD_URL,
+        headers=AUTH_HEADERS,
+        params={'path': disk_path, 'overwrite': 'True'}
+    ) as resp:
+        if resp.status != HTTPStatus.OK:
+            error_msg = f'Ошибка получения URL для загрузки: {resp.status}'
+            raise UploadURLGetError(error_msg)
+        upload_data = await resp.json()
+        upload_href = upload_data.get('href')
+        if not upload_href:
+            raise UploadHrefError(
+                f'Не удалось получить upload_href: {upload_data}')
+
     file_data = file_storage.read()
 
     async with session.put(upload_href, data=file_data) as upload_resp:
-        if upload_resp.status not in [HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED]:
+        if upload_resp.status not in [
+                HTTPStatus.OK,
+                HTTPStatus.CREATED,
+                HTTPStatus.ACCEPTED]:
             error_msg = f'Ошибка загрузки файла: {upload_resp.status}'
             raise Exception(error_msg)
-
-    async with session.put(
-        f'{API_HOST}{API_VERSION}/disk/resources/publish',
-        headers=AUTH_HEADERS,
-        params={'path': disk_path}
-    ) as publish_resp:
-        if publish_resp.status != HTTPStatus.OK:
-            warning_msg = (
-                f'Предупреждение: не удалось опубликовать файл: '
-                f'{publish_resp.status}'
-            )            
 
     async with session.get(
         DOWNLOAD_LINK_URL,

@@ -4,8 +4,8 @@ from wtforms.validators import DataRequired, Length, Optional, Regexp, URL
 
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
-from settings import (MAX_ORIGINAL_LENGTH, MIN_ORIGINAL_LENGTH,
-                      SHORT_PATTERN, USER_LINK_LIMIT)
+from constants import (MAX_ORIGINAL_LENGTH, MIN_ORIGINAL_LENGTH,
+                       SHORT_PATTERN, USER_LINK_LIMIT)
 
 
 class LinkForm(FlaskForm):

@@ -5,10 +5,10 @@ from flask import url_for
 
 from .error_handlers import ShortLinkGenerationError
 from yacut import db
-from settings import (BAD_SHORT, GENERATION_FAIL,
-                      MAX_ATTEMPTS, MAX_ORIGINAL_LENGTH,
-                      SHORT_EXIST, SHORT_LENGTH,
-                      USER_LINK_LIMIT, VALID_SYMBOLS)
+from constants import (BAD_SHORT, GENERATION_FAIL,
+                       MAX_ATTEMPTS, MAX_ORIGINAL_LENGTH,
+                       SHORT_EXIST, SHORT_LENGTH,
+                       USER_LINK_LIMIT, VALID_SYMBOLS)
 
 
 class URLMap(db.Model):
@@ -35,23 +35,23 @@ class URLMap(db.Model):
         """Возвращает объект URLMap по короткому идентификатору."""
         return URLMap.query.filter_by(short=short).first()
 
-    @staticmethod 
-    def create(original, short=None): 
-        """Создает новое сопоставление ссылок.""" 
-        reserved_routes = {'files'}    
-        if short: 
-            if short in reserved_routes:  
-                raise ValueError(SHORT_EXIST)    
-            if URLMap.get(short): 
-                raise ValueError(SHORT_EXIST) 
-            if ((len(short) > USER_LINK_LIMIT) or 
-                    any(char not in VALID_SYMBOLS for char in short)): 
-                raise ValueError(BAD_SHORT) 
-        else: 
-            short = URLMap.get_unique_short() 
-        url_map = URLMap(original=original, short=short) 
-        db.session.add(url_map) 
-        db.session.commit() 
+    @staticmethod
+    def create(original, short=None):
+        """Создает новое сопоставление ссылок."""
+        reserved_routes = {'files'}
+        if short:
+            if short in reserved_routes:
+                raise ValueError(SHORT_EXIST)
+            if URLMap.get(short):
+                raise ValueError(SHORT_EXIST)
+            if ((len(short) > USER_LINK_LIMIT) or
+                    any(char not in VALID_SYMBOLS for char in short)):
+                raise ValueError(BAD_SHORT)
+        else:
+            short = URLMap.get_unique_short()
+        url_map = URLMap(original=original, short=short)
+        db.session.add(url_map)
+        db.session.commit()
         return url_map
 
     def short_link(self):

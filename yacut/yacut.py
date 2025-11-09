@@ -35,15 +35,15 @@ def redirect_short_link(short):
     return redirect(url_map.original)
 
 
-@app.route('/files', methods=('GET', 'POST')) 
-def files(): 
-    """Страница загрузки файлов на Яндекс.Диск.""" 
-    form = FileUploadForm() 
+@app.route('/files', methods=('GET', 'POST'))
+def files():
+    """Страница загрузки файлов на Яндекс.Диск."""
+    form = FileUploadForm()
     links = []
     if request.method == 'GET' or not form.validate_on_submit():
         return render_template('files.html', form=form, links=links)
     files_list = request.files.getlist('files')
-    try: 
+    try:
         upload_results = asyncio.run(upload_multiple_files(files_list))
     except Exception as error:
         flash(f'Ошибка загрузки: {error}', 'danger')
@@ -57,7 +57,7 @@ def files():
             original=view_url,
             short=URLMap.get_unique_short()
         )
-        url_map.is_file = True 
+        url_map.is_file = True
         url_map.file_name = file_name
         try:
             db.session.add(url_map)
