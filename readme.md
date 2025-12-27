@@ -152,4 +152,4 @@ GET /api/id/{short_id}/
 ```
 
 ## Автор
-[Екатерина воронова](https://github.com/katya-voronova)
+[Екатерина Понурова](https://github.com/ekaterina-python-developer)
